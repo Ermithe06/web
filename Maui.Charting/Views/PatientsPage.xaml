@@ -1,0 +1,69 @@
+﻿<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:Maui.Charting.ViewModels"
+             x:Class="Maui.Charting.Views.PatientsPage">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="15" Spacing="12">
+
+            <!-- ADD PATIENT FORM -->
+            <Frame BorderColor="LightGray" Padding="12">
+                <VerticalStackLayout Spacing="8">
+
+                    <Entry Placeholder="First Name"
+                           Text="{Binding NewFirstName}" />
+
+                    <Entry Placeholder="Last Name"
+                           Text="{Binding NewLastName}" />
+
+                    <Entry Placeholder="Address"
+                           Text="{Binding NewAddress}" />
+
+                    <DatePicker Date="{Binding NewBirthDate}" />
+
+                    <Entry Placeholder="Race"
+                           Text="{Binding NewRace}" />
+
+                    <!-- Gender Picker -->
+                    <Picker Title="Select Gender"
+                            ItemsSource="{Binding GenderOptions}"
+                            SelectedItem="{Binding NewGender}" />
+
+                    <Button Text="Add Patient"
+                            Command="{Binding AddCommand}" />
+
+                </VerticalStackLayout>
+            </Frame>
+
+            <!-- PATIENT LIST -->
+            <CollectionView ItemsSource="{Binding Patients}">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <Frame BorderColor="LightGray" Padding="10">
+
+                            <VerticalStackLayout>
+                                <Label Text="{Binding FullName}" FontAttributes="Bold" />
+                                <Label Text="{Binding Gender}" />
+                                <Label Text="{Binding Race}" />
+
+                                <HorizontalStackLayout>
+                                    <Button Text="Edit"
+                                            Command="{Binding Source={RelativeSource AncestorType={x:Type vm:PatientsViewModel}}, Path=EditCommand}"
+                                            CommandParameter="{Binding}" />
+
+                                    <Button Text="Delete"
+                                            BackgroundColor="Red"
+                                            TextColor="White"
+                                            Command="{Binding Source={RelativeSource AncestorType={x:Type vm:PatientsViewModel}}, Path=DeleteCommand}"
+                                            CommandParameter="{Binding}" />
+                                </HorizontalStackLayout>
+                            </VerticalStackLayout>
+
+                        </Frame>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

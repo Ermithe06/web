@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="Maui.Charting.Views.PhysiciansPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:vm="clr-namespace:Maui.Charting.ViewModels"
+    x:Name="Page">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="12" Spacing="14">
+
+            <!-- ADD PHYSICIAN SECTION -->
+            <Frame BorderColor="Gray" Padding="12">
+                <VerticalStackLayout Spacing="10">
+
+                    <Label Text="Add New Physician"
+                           FontAttributes="Bold" />
+
+                    <Entry Placeholder="First Name"
+                           Text="{Binding NewFirstName}" />
+
+                    <Entry Placeholder="Last Name"
+                           Text="{Binding NewLastName}" />
+
+                    <Entry Placeholder="License Number"
+                           Text="{Binding NewLicense}" />
+
+                    <Entry Placeholder="Specialization"
+                           Text="{Binding NewSpecialization}" />
+
+                    <DatePicker Date="{Binding NewGraduationDate}" />
+
+                    <Button Text="Add Physician"
+                            Command="{Binding AddCommand}" />
+                </VerticalStackLayout>
+            </Frame>
+
+            <!-- PHYSICIAN LIST -->
+            <CollectionView ItemsSource="{Binding Physicians}">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <Frame BorderColor="LightGray"
+                               Padding="12"
+                               Margin="0,8">
+                            <Grid ColumnDefinitions="3*,Auto,Auto"
+                                  ColumnSpacing="10">
+
+                                <!-- INFO -->
+                                <VerticalStackLayout Grid.Column="0">
+                                    <Label Text="{Binding FullName}"
+                                           FontAttributes="Bold" />
+
+                                    <Label Text="{Binding Specialization}" />
+                                    <Label Text="{Binding LicenseNumber}" />
+                                </VerticalStackLayout>
+
+                                <!-- EDIT -->
+                                <Button Grid.Column="1"
+                                        Text="Edit"
+                                        WidthRequest="70"
+                                        Command="{Binding Source={RelativeSource AncestorType={x:Type vm:PhysiciansViewModel}},
+                                                          Path=EditCommand}"
+                                        CommandParameter="{Binding}" />
+
+                                <!-- DELETE -->
+                                <Button Grid.Column="2"
+                                        Text="Delete"
+                                        BackgroundColor="Red"
+                                        TextColor="White"
+                                        WidthRequest="70"
+                                        Command="{Binding Source={RelativeSource AncestorType={x:Type vm:PhysiciansViewModel}},
+                                                          Path=DeleteCommand}"
+                                        CommandParameter="{Binding}" />
+
+                            </Grid>
+                        </Frame>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

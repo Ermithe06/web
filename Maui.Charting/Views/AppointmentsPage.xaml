@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="Maui.Charting.Views.AppointmentsPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:vm="clr-namespace:Maui.Charting.ViewModels"
+    x:Name="Page">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="12" Spacing="12">
+
+            <!-- SORT BAR -->
+            <HorizontalStackLayout Spacing="10">
+                <Picker ItemsSource="{Binding SortOptions}"
+                        SelectedItem="{Binding SelectedSortOption}"
+                        WidthRequest="160" />
+                <Button Text="↑" Command="{Binding SortAscCommand}" />
+                <Button Text="↓" Command="{Binding SortDescCommand}" />
+            </HorizontalStackLayout>
+
+            <!-- INLINE ADD -->
+            <Frame BorderColor="Gray" Padding="10">
+                <VerticalStackLayout Spacing="8">
+
+                    <Label Text="Schedule Appointment"
+                           FontAttributes="Bold" />
+
+                    <Picker Title="Select Patient"
+                            ItemsSource="{Binding Patients}"
+                            ItemDisplayBinding="{Binding FullName}"
+                            SelectedItem="{Binding NewSelectedPatient}" />
+
+                    <Picker Title="Select Physician"
+                            ItemsSource="{Binding Physicians}"
+                            ItemDisplayBinding="{Binding FullName}"
+                            SelectedItem="{Binding NewSelectedPhysician}" />
+
+                    <DatePicker Date="{Binding NewDate}" />
+                    <TimePicker Time="{Binding NewTime}" />
+
+                    <Entry Placeholder="Room"
+                           Text="{Binding NewRoom}" />
+
+                    <Entry Placeholder="Duration (minutes)"
+                           Keyboard="Numeric"
+                           Text="{Binding NewDuration}" />
+
+                    <Button Text="Add Appointment"
+                            Command="{Binding AddInlineCommand}" />
+
+                </VerticalStackLayout>
+            </Frame>
+
+            <!-- APPOINTMENT LIST -->
+            <CollectionView ItemsSource="{Binding Appointments}">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+           
+                            <Frame Padding="10"
+                   Margin="0,6"
+                   BorderColor="LightGray"
+                   BackgroundColor="{Binding IsToday,
+                                     Converter={StaticResource TodayAppointmentColorConverter}}">
+                            <Grid ColumnDefinitions="3*,Auto,Auto" ColumnSpacing="10">
+
+                                <!-- LEFT SIDE INFO -->
+                                <VerticalStackLayout Grid.Column="0">
+                                    <Label Text="{Binding Start, StringFormat='{0:yyyy-MM-dd HH:mm}'}"
+                                           FontAttributes="Bold" />
+                                    <Label Text="{Binding End, StringFormat='Ends: {0:HH:mm}'}"
+                                           FontAttributes="Italic" />
+
+                                    <Label Text="{Binding Room}" />
+                                </VerticalStackLayout>
+
+                                <!-- EDIT BUTTON -->
+                                <Button Grid.Column="1"
+                                        Text="Edit"
+                                        WidthRequest="70"
+                                        Command="{Binding Source={RelativeSource AncestorType={x:Type vm:AppointmentsViewModel}}, Path=EditCommand}"
+                                        CommandParameter="{Binding}" />
+
+                                <!-- DELETE BUTTON -->
+                                <Button Grid.Column="2"
+                                        Text="Delete"
+                                        BackgroundColor="Red"
+                                        TextColor="White"
+                                        WidthRequest="70"
+                                        Command="{Binding Source={RelativeSource AncestorType={x:Type vm:AppointmentsViewModel}}, Path=DeleteCommand}"
+                                        CommandParameter="{Binding}" />
+
+                            </Grid>
+                        </Frame>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="Maui.Charting.Views.EditAppointmentPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:vm="clr-namespace:Maui.Charting.ViewModels">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="16" Spacing="12">
+
+            <Label Text="Edit Appointment"
+                   FontSize="20"
+                   FontAttributes="Bold" />
+
+            <!-- Patient -->
+            <Picker Title="Patient"
+                    ItemsSource="{Binding Patients}"
+                    ItemDisplayBinding="{Binding FullName}"
+                    SelectedItem="{Binding SelectedPatient}" />
+
+            <!-- Physician -->
+            <Picker Title="Physician"
+                    ItemsSource="{Binding Physicians}"
+                    ItemDisplayBinding="{Binding FullName}"
+                    SelectedItem="{Binding SelectedPhysician}" />
+
+            <!-- Date / Time / Room / Duration -->
+            <DatePicker Date="{Binding Date}" />
+            <TimePicker Time="{Binding Time}" />
+
+            <Entry Placeholder="Room"
+                   Text="{Binding Room}" />
+
+            <Entry Placeholder="Duration (minutes)"
+                   Keyboard="Numeric"
+                   Text="{Binding DurationMinutes}" />
+
+            <!-- Diagnoses -->
+            <Label Text="Diagnoses"
+                   FontAttributes="Bold"
+                   Margin="0,10,0,0" />
+
+            <HorizontalStackLayout>
+                <Entry Placeholder="New Diagnosis"
+                       Text="{Binding NewDiagnosis}"
+                       HorizontalOptions="FillAndExpand" />
+                <Button Text="Add"
+                        Command="{Binding AddDiagnosisCommand}" />
+            </HorizontalStackLayout>
+
+            <CollectionView ItemsSource="{Binding Diagnoses}">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <HorizontalStackLayout>
+                            <Label Text="{Binding}" />
+                            <Button Text="X"
+                                    Command="{Binding Source={RelativeSource AncestorType={x:Type vm:AppointmentDetailViewModel}},
+                                                     Path=RemoveDiagnosisCommand}"
+                                    CommandParameter="{Binding}" />
+                        </HorizontalStackLayout>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+
+            <!-- Treatments -->
+            <Label Text="Treatments"
+                   FontAttributes="Bold"
+                   Margin="0,10,0,0" />
+
+            <HorizontalStackLayout>
+                <Entry Placeholder="Treatment Name"
+                       Text="{Binding NewTreatmentName}"
+                       HorizontalOptions="FillAndExpand" />
+                <Entry Placeholder="Cost"
+                       Keyboard="Numeric"
+                       Text="{Binding NewTreatmentCost}"
+                       WidthRequest="100" />
+                <Button Text="Add"
+                        Command="{Binding AddTreatmentCommand}" />
+            </HorizontalStackLayout>
+
+            <CollectionView ItemsSource="{Binding Treatments}">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <HorizontalStackLayout>
+                            <Label Text="{Binding Name}" />
+                            <Label Text="{Binding Cost, StringFormat='${0:F2}'}" />
+                            <Button Text="X"
+                                    Command="{Binding Source={RelativeSource AncestorType={x:Type vm:AppointmentDetailViewModel}},
+                                                     Path=RemoveTreatmentCommand}"
+                                    CommandParameter="{Binding}" />
+                        </HorizontalStackLayout>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+
+            <!-- Save / Delete -->
+            <HorizontalStackLayout HorizontalOptions="Center"
+                                   Spacing="12"
+                                   Margin="0,10,0,0">
+                <Button Text="Save"
+                        Command="{Binding SaveCommand}" />
+                <Button Text="Delete"
+                        BackgroundColor="Red"
+                        TextColor="White"
+                        Command="{Binding DeleteCommand}" />
+            </HorizontalStackLayout>
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>
