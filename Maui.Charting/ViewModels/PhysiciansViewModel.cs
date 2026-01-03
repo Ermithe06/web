@@ -1,6 +1,6 @@
-﻿using Maui.Charting.Views;
+﻿using Maui.Charting.Services;
+using Maui.Charting.Views;
 using MedicalCharting.Models;
-using MedicalCharting.Services;
 using System.Collections.ObjectModel;
 using System.Windows.Input;
 
@@ -8,10 +8,11 @@ namespace Maui.Charting.ViewModels
 {
     public class PhysiciansViewModel : BaseViewModel
     {
-        private readonly DataStore _store;
+        private readonly MedicalApiClient _api;
 
         public ObservableCollection<Physician> Physicians { get; } = new();
 
+        // Add Physician fields
         public string NewFirstName { get; set; } = "";
         public string NewLastName { get; set; } = "";
         public string NewLicense { get; set; } = "";
@@ -22,66 +23,68 @@ namespace Maui.Charting.ViewModels
         public ICommand DeleteCommand { get; }
         public ICommand EditCommand { get; }
 
-        public PhysiciansViewModel(DataStore store)
+        public PhysiciansViewModel(MedicalApiClient api)
         {
-            _store = store;
+            _api = api;
 
-            _store.PhysiciansChanged += Refresh;
-
-            AddCommand = new Command(AddPhysician);
-            DeleteCommand = new Command<Physician>(DeletePhysician);
+            AddCommand = new Command(async () => await AddPhysician());
+            DeleteCommand = new Command<Physician>(async (p) => await DeletePhysician(p));
             EditCommand = new Command<Physician>(OpenEditPage);
 
             Refresh();
         }
 
-        public void Refresh()
+        // Keep Refresh() because pages call it
+        public void Refresh() => _ = LoadFromApi();
+
+        public async Task LoadFromApi()
         {
             Physicians.Clear();
-            foreach (var p in _store.Physicians)
+            var data = await _api.GetPhysicians();
+            foreach (var p in data)
                 Physicians.Add(p);
         }
 
-        private void AddPhysician()
+        private async Task AddPhysician()
         {
             if (string.IsNullOrWhiteSpace(NewFirstName) ||
                 string.IsNullOrWhiteSpace(NewLastName) ||
                 string.IsNullOrWhiteSpace(NewLicense))
             {
-                Application.Current.MainPage.DisplayAlert("Error", "All fields are required.", "OK");
+                await Application.Current!.MainPage!
+                    .DisplayAlert("Error", "All required fields must be filled.", "OK");
                 return;
             }
 
             var physician = new Physician
             {
-                Id = _store.Physicians.Any() ? _store.Physicians.Max(p => p.Id) + 1 : 1,
                 FirstName = NewFirstName,
                 LastName = NewLastName,
                 LicenseNumber = NewLicense,
-                GraduationDate = NewGraduationDate,
-                Specialization = NewSpecialization
+                Specialization = NewSpecialization,
+                GraduationDate = NewGraduationDate
             };
 
-            _store.Physicians.Add(physician);
-            _store.NotifyPhysiciansChanged();
-
+            await _api.AddPhysician(physician);
+            await LoadFromApi();
             ClearForm();
         }
 
-        private void DeletePhysician(Physician physician)
+        private async Task DeletePhysician(Physician? physician)
         {
             if (physician == null) return;
 
-            _store.Physicians.Remove(physician);
-            _store.NotifyPhysiciansChanged();
+            await _api.DeletePhysician(physician.Id);
+            await LoadFromApi();
         }
 
-        private async void OpenEditPage(Physician physician)
+        private async void OpenEditPage(Physician? physician)
         {
             if (physician == null) return;
 
-            var vm = new PhysicianDetailViewModel(_store, physician, this);
-            await Application.Current.MainPage.Navigation.PushAsync(new EditPhysicianPage(vm));
+            var vm = new PhysicianDetailViewModel(_api, physician, this);
+            await Application.Current!.MainPage!
+                .Navigation.PushAsync(new EditPhysicianPage(vm));
         }
 
         private void ClearForm()

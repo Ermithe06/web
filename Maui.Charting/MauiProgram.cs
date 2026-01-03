@@ -1,9 +1,8 @@
 ﻿using Microsoft.Maui;
 using Microsoft.Maui.Hosting;
-using Microsoft.Extensions.DependencyInjection;
 using Maui.Charting.ViewModels;
 using Maui.Charting.Views;
-using MedicalCharting.Services;
+using Maui.Charting.Services;
 
 namespace Maui.Charting;
 
@@ -19,29 +18,31 @@ public static class MauiProgram
                 fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
             });
 
-        // -----------------------
-        //  SERVICES (SINGLETONS)
-        // -----------------------
-        builder.Services.AddSingleton<DataStore>();
-        builder.Services.AddSingleton<AppointmentService>();
+        // =======================
+        // SERVICES
+        // =======================
+
         builder.Services.AddSingleton(new HttpClient
         {
-            BaseAddress = new Uri("http://10.0.2.2:5000/") // Android emulator -> local machine
-                                                           // Use http://localhost:5000/ for Windows desktop only
+            // Android emulator → local machine
+            BaseAddress = new Uri("http://10.0.2.2:5000/")
+            // Windows desktop ONLY: http://localhost:5000/
         });
 
-        builder.Services.AddSingleton<Maui.Charting.Services.MedicalApiClient>();
+        builder.Services.AddSingleton<MedicalApiClient>();
 
-        // -----------------------
-        //  VIEWMODELS (SINGLETONS)
-        // -----------------------
+        // =======================
+        // VIEWMODELS
+        // =======================
+
         builder.Services.AddSingleton<PatientsViewModel>();
         builder.Services.AddSingleton<PhysiciansViewModel>();
         builder.Services.AddSingleton<AppointmentsViewModel>();
 
-        // -----------------------
-        //  PAGES (TRANSIENT)
-        // -----------------------
+        // =======================
+        // PAGES
+        // =======================
+
         builder.Services.AddTransient<PatientsPage>();
         builder.Services.AddTransient<PhysiciansPage>();
         builder.Services.AddTransient<AppointmentsPage>();

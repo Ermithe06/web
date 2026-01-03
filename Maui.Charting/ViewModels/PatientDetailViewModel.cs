@@ -1,40 +1,50 @@
 ﻿using MedicalCharting.Models;
-using MedicalCharting.Services;
+using Maui.Charting.Services;
+using System.Windows.Input;
 
-namespace Maui.Charting.ViewModels
+namespace Maui.Charting.ViewModels;
+
+public class PatientDetailViewModel : BaseViewModel
 {
-    public class PatientDetailViewModel : BaseViewModel
+    private readonly MedicalApiClient _api;
+    private readonly PatientsViewModel _parent;
+
+    public Patient Patient { get; }
+
+    public IEnumerable<Gender> GenderOptions =>
+        Enum.GetValues(typeof(Gender)).Cast<Gender>();
+
+    public ICommand SaveCommand { get; }
+
+    public PatientDetailViewModel(
+        MedicalApiClient api,
+        Patient patient,
+        PatientsViewModel parent)
     {
-        private readonly DataStore _store;
-        private readonly PatientsViewModel _parent;
+        _api = api;
+        Patient = patient;
+        _parent = parent;
 
-        public Patient Patient { get; }
+        SaveCommand = new Command(async () => await Save());
+    }
 
-        public IEnumerable<Gender> GenderOptions =>
-            Enum.GetValues(typeof(Gender)).Cast<Gender>();
-
-        public PatientDetailViewModel(DataStore store, Patient patient, PatientsViewModel parent)
+    private async Task Save()
+    {
+        if (string.IsNullOrWhiteSpace(Patient.FirstName) ||
+            string.IsNullOrWhiteSpace(Patient.LastName))
         {
-            _store = store;
-            Patient = patient;
-            _parent = parent;
+            await Application.Current!.MainPage!
+                .DisplayAlert("Error", "Name fields are required.", "OK");
+            return;
         }
 
-        public void Save()
-        {
-            var existing = _store.Patients.FirstOrDefault(x => x.Id == Patient.Id);
-            if (existing != null)
-            {
-                existing.FirstName = Patient.FirstName;
-                existing.LastName = Patient.LastName;
-                existing.Address = Patient.Address;
-                existing.Race = Patient.Race;
-                existing.Gender = Patient.Gender;
-                existing.BirthDate = Patient.BirthDate;
-            }
+        // PUT to API
+        await _api.UpdatePatient(Patient.Id, Patient);
 
-            _store.NotifyPatientsChanged();
-            _parent.Refresh();
-        }
+        // Refresh parent list from API
+        _parent.Refresh();
+
+        // Go back
+        await Application.Current!.MainPage!.Navigation.PopAsync();
     }
 }
